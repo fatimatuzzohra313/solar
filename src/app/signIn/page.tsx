@@ -2,13 +2,13 @@
 
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/navigation';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { setCredentials } from "@/lib/feature/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, store } from "@/lib/store/store";
+import { RootState } from "@/lib/store/store";
 import Cookies from 'js-cookie';
 import { useLoginMutation } from "@/lib/feature/auth/auththunk";
 
@@ -25,20 +25,24 @@ export default function LoginPage() {
   const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
   const dispatch = useDispatch();
-  const token = Cookies.get('token');
   const [showPassword, setShowPassword] = useState(false);
-
+  const hasRedirectedRef = useRef(false);
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
+  // Read the token once on mount
+  const [localToken, setLocalToken] = useState<string | undefined>(undefined);
   useEffect(() => {
-    if (token || isAuthenticated) {
-      router.replace('/dashboard');
-    }
-  }, [isAuthenticated, router, token]);
+    const tokenFromCookie = Cookies.get('token');
+    setLocalToken(tokenFromCookie);
+  }, []);
 
-  if (token) {
-    return null;
-  }
+  // // Redirect if already authenticated or token exists
+  // useEffect(() => {
+  //   if (!hasRedirectedRef.current && (localToken || isAuthenticated)) {
+  //     hasRedirectedRef.current = true;
+  //     router.replace('/dashboard');
+  //   }
+  // }, [localToken, isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

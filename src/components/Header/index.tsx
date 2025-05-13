@@ -67,7 +67,7 @@ const Header = () => {
       // Clear the Redux store
       dispatch(logout());
 
-      router.push("/signIn");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Logout failed:", error);
       dispatch(logout());
